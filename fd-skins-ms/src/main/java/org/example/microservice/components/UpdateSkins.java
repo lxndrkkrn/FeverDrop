@@ -21,12 +21,12 @@ public class UpdateSkins {
     private final SkinAppService skinAppService;
 
     @Value("${market.api.key}")
-    private final String baseUrl;
+    private String baseUrl;
 
-    private final RestClient restClient = RestClient.builder().baseUrl(baseUrl).build();
+    private RestClient restClient = RestClient.builder().baseUrl(baseUrl).build();
 
     @Value("${market.api.key}")
-    private final String apiKey;
+    private String apiKey;
 
     @Scheduled(fixedDelay = 60000)
     @Transactional

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -37,24 +38,20 @@ public class InventoryService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public List<SkinId> addSkins(List<SkinId> list, Long id) {
-
+    public Collection<SkinId> addSkins(Collection<SkinId> list, Long id) {
         Inventory inventory = inventoryRepository.findById(id)
                 .orElseThrow(() -> new NotFound("Инвентарь не найден"));
 
-        inventory.getSkins().addAll(list);
-
+        inventory.getSkins().addAll(list); // Теперь Hibernate сделает только точечные INSERT
         return list;
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public List<SkinId> takeSkins(List<SkinId> list, Long id) {
-
+    public Collection<SkinId> takeSkins(Collection<SkinId> list, Long id) {
         Inventory inventory = inventoryRepository.findById(id)
                 .orElseThrow(() -> new NotFound("Инвентарь не найден"));
 
-        inventory.getSkins().removeAll(list);
-
+        inventory.getSkins().removeAll(list); // Теперь Hibernate сделает только точечные DELETE по конкретным ID
         return list;
     }
 

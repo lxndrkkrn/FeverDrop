@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,11 +28,11 @@ public class InventoryAppService {
     public void addSkinsByRealIds(@Validated AddSkinsRequestDto dto) {
         log.info("Попытка добавления скинов по их Real Id ({}) игроку {}", dto.ids(), dto.id());
 
-        List<SkinId> skinIdsList = dto.ids().stream()
+        Set<SkinId> skinIdsSet = dto.ids().stream()
                 .map(skinIdService::findSkinIdBySkinId)
-                .toList();
+                .collect(Collectors.toSet());
 
-        inventoryService.addSkins(skinIdsList, dto.id());
+        inventoryService.addSkins(skinIdsSet, dto.id());
         log.info("Скины ({}) добавлены игроку {}", dto.ids(), dto.id());
     }
 
@@ -38,11 +40,11 @@ public class InventoryAppService {
     public void takeSkinsByRealIds(@Validated TakeSkinsRequestDto dto) {
         log.info("Попытка удаления скинов по их Real Id ({}) игроку {}", dto.ids(), dto.id());
 
-        List<SkinId> skinIdsList = dto.ids().stream()
+        Set<SkinId> skinIdsSet = dto.ids().stream()
                 .map(skinIdService::findSkinIdBySkinId)
-                .toList();
+                .collect(Collectors.toSet());
 
-        inventoryService.takeSkins(skinIdsList, dto.id());
+        inventoryService.takeSkins(skinIdsSet, dto.id());
         log.info("Скины ({}) удалены у игрока {}", dto.ids(), dto.id());
     }
 

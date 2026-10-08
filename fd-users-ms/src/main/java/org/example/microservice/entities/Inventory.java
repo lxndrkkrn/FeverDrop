@@ -30,14 +30,14 @@ public class Inventory {
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, unique = true)
-    private org.example.microservice.entities.User user;
+    private User user;
 
     @ManyToMany()
     @JoinTable(name = "inventory_skins",
                 joinColumns = @JoinColumn(name = "inventory_id"),
                 inverseJoinColumns = @JoinColumn(name = "skin_id")
     )
-    private List<org.example.microservice.entities.SkinId> skins = new ArrayList<>();
+    private Set<SkinId> skins = new HashSet<>();
 
     @PrePersist
     protected void onCreate() { if (this.uuid == null) this.uuid = UUID.randomUUID(); }
