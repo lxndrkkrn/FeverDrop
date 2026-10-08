@@ -1,0 +1,53 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.1.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'org.example'
+version = '0.0.1-SNAPSHOT'
+description = 'fd-configurations'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // 1. ИНФРАСТРУКТУРА: База данных Postgres и JPA (Hibernate)
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // 2. БРОКЕРЫ: Кафка и RabbitMQ (AMQP)
+    implementation 'org.springframework.boot:spring-boot-starter-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // 3. БЕЗОПАСНОСТЬ: Общие бины авторизации, шифрования паролей и CORS
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // 4. СЛУЖЕБНЫЕ И ИНСТРУМЕНТЫ РАЗРАБОТКИ
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // 5. ТЕСТЫ (Только то, что настраивает контекст для проверки конфигураций)
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-kafka-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-amqp-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
