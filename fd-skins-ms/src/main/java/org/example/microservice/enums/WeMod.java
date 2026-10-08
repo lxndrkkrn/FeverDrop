@@ -1,6 +1,6 @@
-package org.example.fmskinmicroservice.enums;
+package org.example.microservice.enums;
 
-public enum WeaponMod {
+public enum WeMod {
 
     NONE,
     STATTRACK,

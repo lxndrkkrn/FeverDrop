@@ -1,4 +1,4 @@
-package org.example.microservice.dtos.response;
+package org.example.microservice.dtos.response.skin;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

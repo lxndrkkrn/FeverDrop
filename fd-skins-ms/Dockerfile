@@ -6,14 +6,14 @@ WORKDIR /app
 COPY . .
 
 # Собираем строго наш микросервис
-RUN ./gradlew :fd-users-ms:bootJar -x test
+RUN ./gradlew :fd-skins-ms:bootJar -x test
 
 # Этап 2: Запуск готового приложения
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 # Копируем собранный jar-файл
-COPY --from=build /app/fd-users-ms/build/libs/*.jar app.jar
+COPY --from=build /app/fd-skins-ms/build/libs/*.jar app.jar
 
 EXPOSE 8081
 

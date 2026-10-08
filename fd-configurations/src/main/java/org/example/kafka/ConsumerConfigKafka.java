@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Configuration
 
-public class KafkaConsumerConfig {
+public class ConsumerConfigKafka {
 
     @Value("${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}")
     private String bootstrapServer;

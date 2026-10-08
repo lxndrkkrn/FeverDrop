@@ -1,14 +1,12 @@
-version: '3.8'
-
 services:
 
   ################################ D A T A - B A S E S ################################
 
-  fm-postgres:
+  fd-postgres:
     image: postgres:15-alpine
-    container_name: fm-postgres_db
+    container_name: fd-postgres
     environment:
-      POSTGRES_DB: fm-db
+      POSTGRES_DB: fd-db
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: secret
     ports:
@@ -16,87 +14,73 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  fm-rabbitmq:
+  fd-rabbitmq:
     image: rabbitmq:3-management-alpine
-    container_name: fm-rabbitmq
+    container_name: fd-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: secret
     ports:
-      - "5672:5672"   # Порт для подключения Java / Spring приложения
-      - "15672:15672" # Порт для веб-панели управления (логин: admin / пароль: secret)
+      - "5672:5672"
+      - "15672:15672"
 
-  fm-pgadmin:
+  fd-pgadmin:
     image: dpage/pgadmin4
-    container_name: fm-pgadmin
+    container_name: fd-pgadmin
     ports:
       - "5050:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: example@gmail.com
       PGADMIN_DEFAULT_PASSWORD: secret
     depends_on:
-      - fm-postgres
+      - fd-postgres
 
   ################################ B R O K E R S ################################
 
-  fm-redis:
-    image: redis:7-alpine
-    container_name: fm-redis
-    command: redis-server --appendonly yes
-    ports:
-      - "6379:6379"
-    volumes:
-      - redisdata:/data
-
-  fm-kafka:
+  fd-kafka:
     image: apache/kafka:3.7.0
-    container_name: fm-kafka
+    container_name: fd-kafka
     ports:
       - "9092:9092"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: 'broker,controller'
       KAFKA_LISTENERS: 'INTERNAL://0.0.0.0:9093,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093'
-      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://fm-kafka:9093,EXTERNAL://localhost:9092'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://fd-kafka:9093,EXTERNAL://localhost:9092'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@127.0.0.1:29093'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@localhost:29093' # Исправлено с 127.0.0.1
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   ################################ M I C R O - S E R V I C E S ################################
 
-  fm-user-microservice:
+  fd-users-ms:
     build:
       context: .
-      dockerfile: ./fm-user-microservice/Dockerfile
-    container_name: fm-user-microservice
+      dockerfile: ./fd-users-ms/Dockerfile
+    container_name: fd-users-ms
     ports:
       - "8081:8081"
     environment:
-      # Подключение к Postgres (контейнер fm-postgres, база fm-db)
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://fm-postgres:5432/fm-db"
+      SERVER_PORT: 8081
+
+      # Исправлено: имя хоста fd-postgres (соответствует названию сервиса выше) и база fd-db
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://fd-postgres:5432/fd-db"
       SPRING_DATASOURCE_USERNAME: "admin"
       SPRING_DATASOURCE_PASSWORD: "secret"
 
-      # Подключение к Kafka внутри Docker сети
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: "fm-kafka:9093"
+      # Внутри Docker-сети микросервис общается с Kafka через внутренний порт 9093
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: "fd-kafka:9093"
 
-      # Подключение к Redis внутри Docker сети
-      SPRING_DATA_REDIS_HOST: "fm-redis"
-      SPRING_DATA_REDIS_PORT: 6379
-
-      # Подключение к RabbitMQ внутри Docker сети
-      SPRING_RABBITMQ_HOST: "fm-rabbitmq"
+      SPRING_RABBITMQ_HOST: "fd-rabbitmq"
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: "admin"
       SPRING_RABBITMQ_PASSWORD: "secret"
     depends_on:
-      - fm-postgres
-      - fm-kafka
-      - fm-redis
-      - fm-rabbitmq
+      - fd-postgres
+      - fd-kafka
+      - fd-rabbitmq
 
 volumes:
   pgdata:
-  redisdata:

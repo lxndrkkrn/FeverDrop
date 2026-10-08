@@ -25,6 +25,9 @@ public class Inventory {
     @NotNull
     private UUID uuid;
 
+    @Version
+    private Long version;
+
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, unique = true)
     private org.example.microservice.entities.User user;

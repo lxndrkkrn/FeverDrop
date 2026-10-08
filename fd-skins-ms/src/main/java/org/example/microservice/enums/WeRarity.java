@@ -1,6 +1,6 @@
-package org.example.fmskinmicroservice.enums;
+package org.example.microservice.enums;
 
-public enum WeaponRarity {
+public enum WeRarity {
 
     WHITE,
     LIGHT_BLUE,

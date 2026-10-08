@@ -1,1 +1,8 @@
 rootProject.name = 'FeverDrop'
+
+include 'common-exceptions'
+include 'fd-configurations'
+include 'fd-pojo'
+
+include 'fd-users-ms'
+include 'fd-skins-ms'

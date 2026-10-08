@@ -1,4 +1,4 @@
-package org.example.microservice.dtos.request;
+package org.example.microservice.dtos.request.skin;
 
 import java.math.BigDecimal;
 

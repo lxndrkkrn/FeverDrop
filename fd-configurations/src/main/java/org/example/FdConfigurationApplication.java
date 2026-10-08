@@ -19,10 +19,10 @@ import org.springframework.context.annotation.Import;
         WebSocketConfig.class
 })
 
-public class FnConfigurationApplication {
+public class FdConfigurationApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(FnConfigurationApplication.class, args);
+        SpringApplication.run(FdConfigurationApplication.class, args);
     }
 
 }

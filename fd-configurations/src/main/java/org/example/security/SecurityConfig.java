@@ -1,4 +1,4 @@
-package fdconfiguration.security;
+package org.example.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -57,12 +58,13 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/css/**", "/js/**", "/jsx/**",
-                                "/auth/login", "/auth/register", "/auth/logout"
+                                "/auth/login", "/auth/register", "/auth/logout",
+                                "/api/kafka-test/**"
                         )
                         .permitAll()
                         .anyRequest().authenticated()
                 )
-                .logout(logout -> logout.permitAll())
+                .logout(LogoutConfigurer::permitAll)
                 //.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

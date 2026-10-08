@@ -1,4 +1,4 @@
-package fdconfiguration.kafka;
+package org.example.kafka;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

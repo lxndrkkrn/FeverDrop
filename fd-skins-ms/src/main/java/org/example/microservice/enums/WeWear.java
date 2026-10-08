@@ -1,6 +1,6 @@
-package org.example.fmskinmicroservice.enums;
+package org.example.microservice.enums;
 
-public enum WeaponWear {
+public enum WeWear {
 
     VANILLA,
     FACTORY_NEW,

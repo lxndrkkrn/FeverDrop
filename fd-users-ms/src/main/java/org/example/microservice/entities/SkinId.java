@@ -23,4 +23,7 @@ public class SkinId {
     @NotNull
     private Long skinId;
 
+    @Version
+    private Long version;
+
 }
