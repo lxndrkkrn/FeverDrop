@@ -32,12 +32,13 @@ public class Inventory {
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, unique = true)
     private User user;
 
-    @ManyToMany()
-    @JoinTable(name = "inventory_skins",
-                joinColumns = @JoinColumn(name = "inventory_id"),
-                inverseJoinColumns = @JoinColumn(name = "skin_id")
+    @ElementCollection
+    @CollectionTable(
+            name = "inventory_skins",
+            joinColumns = @JoinColumn(name = "inventory_id")
     )
-    private Set<SkinId> skins = new HashSet<>();
+    @Column(name = "skin_market_id", unique = true)
+    private Set<String> skinMarketIds = new HashSet<>();
 
     @PrePersist
     protected void onCreate() { if (this.uuid == null) this.uuid = UUID.randomUUID(); }

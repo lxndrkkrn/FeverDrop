@@ -13,4 +13,5 @@ public interface SkinRepository extends JpaRepository<Skin, Long> {
 
     List<Skin> findSkinsByMarketPriceBetween(BigDecimal min, BigDecimal max);
 
+
 }

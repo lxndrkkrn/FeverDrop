@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -82,7 +83,9 @@ public class UpdateSkinService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void processUpdate(List<MarketItemDto> items, Map<String, Skin> existingSkins) {
+    public List<Skin> processUpdate(List<MarketItemDto> items, Map<String, Skin> existingSkins) {
+        List<Skin> newSkinList = new ArrayList<>();
+
         for (MarketItemDto item : items) {
             if (item.tradable()) {
                 if (existingSkins.containsKey(item.skinMarketId())) {
@@ -93,9 +96,13 @@ public class UpdateSkinService {
                 } else {
                     Skin skin = createNewSkinTemplate(item);
                     existingSkins.put(item.skinMarketId(), skin);
+
+                    newSkinList.add(skin);
                 }
             }
         }
+
+        return newSkinList;
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
