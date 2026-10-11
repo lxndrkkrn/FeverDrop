@@ -9,10 +9,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.example.microservice.enums.WeMod;
-import org.example.microservice.enums.WeRarity;
-import org.example.microservice.enums.WeType;
-import org.example.microservice.enums.WeWear;
 import org.hibernate.validator.constraints.URL;
 
 import java.math.BigDecimal;
@@ -37,20 +33,20 @@ public class Skin {
     private String name;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    private WeType type;
+    //@Enumerated(EnumType.STRING)
+    private String type;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    private WeRarity rarity;
+    //@Enumerated(EnumType.STRING)
+    private String rarity;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    private WeWear wear;
+    //@Enumerated(EnumType.STRING)
+    private String wear;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    private WeMod mod;
+    //@Enumerated(EnumType.STRING)
+    private String mod;
 
     @NotNull
     @Max(value = 1)
@@ -71,5 +67,12 @@ public class Skin {
 
     @Version
     private Long version;
+
+    public void updatePriceFromMarket(BigDecimal newPrice) {
+        if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Цена маркета должна быть положительной");
+        }
+        this.marketPrice = newPrice;
+    }
 
 }

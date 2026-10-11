@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +40,11 @@ public class SkinService {
         return skinRepository.findSkinsByMarketPriceBetween(min, max);
     }
 
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+    public List<Skin> findAllSkins() {
+        return skinRepository.findAll();
+    }
+
     @Transactional(propagation = Propagation.MANDATORY)
     public Skin createSkin(
             String skinMarketId,
@@ -47,10 +53,10 @@ public class SkinService {
             BigDecimal marketPrice,
             BigDecimal steamPrice,
             String imageUrl,
-            WeType type,
-            WeRarity rarity,
-            WeWear wear,
-            WeMod mod
+            String type,
+            String rarity,
+            String wear,
+            String mod
     ) {
 
         Skin skin = new Skin();

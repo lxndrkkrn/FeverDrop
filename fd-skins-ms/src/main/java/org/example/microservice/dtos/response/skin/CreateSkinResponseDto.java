@@ -19,9 +19,9 @@ public record CreateSkinResponseDto(
         @NotNull @Positive BigDecimal marketPrice,
         @Positive BigDecimal steamPrice,
         @NotNull @URL String imageUrl,
-        @NotNull WeType type,
-        @NotNull WeRarity rarity,
-        @NotNull WeWear wear,
-        @NotNull WeMod mod
+        @NotNull String type,
+        @NotNull String rarity,
+        @NotNull String wear,
+        @NotNull String mod
 ) {
 }

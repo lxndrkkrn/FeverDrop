@@ -15,6 +15,6 @@ WORKDIR /app
 # Копируем собранный jar-файл
 COPY --from=build /app/fd-skins-ms/build/libs/*.jar app.jar
 
-EXPOSE 8081
+EXPOSE 8082
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
