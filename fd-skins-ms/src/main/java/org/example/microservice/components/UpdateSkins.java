@@ -23,6 +23,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.rmi.ServerError;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,9 @@ public class UpdateSkins {
         log.info("Начинаем парсинг скинов с API Aim.Market...");
 
         try {
+            // Дата начала парса
+            LocalDateTime parseDate = LocalDateTime.now();
+
             String cursor = null;
             boolean hasMorePages = true;
 
@@ -54,25 +58,29 @@ public class UpdateSkins {
             Map<String, Skin> existingSkins = updateSkinService.getExistingSkinsMap();
 
             List<Skin> changesBuff = new ArrayList<>();
-            //List<Skin> newSkinsBuffer = new ArrayList<>();
 
+            // Цикл парса маркета (Пока есть что парсить)
             while (hasMorePages) {
 
+                // Get запрос на маркет + проверка
                 MarketInventoryDto marketInventory = updateSkinService.fetchSkinsFromMarket(cursor);
                 if (updateSkinService.isResponseEmpty(marketInventory)) {
                     log.info("Получен пустой ответ от API. Завершаем чтение страниц.");
                     break;
                 }
 
+                // Страница со скинами + обновление статистики
                 cursor = marketInventory.cursor();
 
                 totalProcessed += marketInventory.items().size();
                 pages ++;
 
+                // Добавление обновленных скинов в общую кучу
                 changesBuff.addAll(updateSkinService.processUpdate(marketInventory.items(), existingSkins));
 
                 log.info("Страница {} обработана. Скинов в буфере: {}", pages, changesBuff.size());
 
+                // Если куча >= BATCH_SIZE, сохраняем
                 if (changesBuff.size() >= BATCH_SIZE) {
 
                     skinService.saveAllSkins(new ArrayList<>(changesBuff));
@@ -82,6 +90,7 @@ public class UpdateSkins {
                             totalProcessed, existingSkins.size());
                 }
 
+                // Если странцы нет, останавливаем парс маркета
                 if (cursor == null || cursor.isBlank()) {
                     hasMorePages = false;
                 } else {
@@ -89,12 +98,16 @@ public class UpdateSkins {
                 }
             }
 
+            // Досохраняем остатки
             if (!changesBuff.isEmpty()) {
-
                 skinService.saveAllSkins(new ArrayList<>(changesBuff));
                 changesBuff.clear();
-
             }
+
+            // Отчёт о парсе
+            int deleteSkins = skinService.deleteObsoleteSkins(parseDate);
+
+            log.info("Удалено скинов: {}", deleteSkins);
 
             log.info("Синхронизация полностью завершена! Всего обработано скинов со всех страниц: {}. В базе: {}",
                     totalProcessed, existingSkins.size());

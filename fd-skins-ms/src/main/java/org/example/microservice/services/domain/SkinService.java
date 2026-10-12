@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -107,6 +108,11 @@ public class SkinService {
         if (!list.isEmpty()) {
             skinRepository.saveAll(list);
         }
+    }
+
+    @Transactional
+    public int deleteObsoleteSkins(LocalDateTime time) {
+        return skinRepository.deleteObsoleteSkins(time);
     }
 
 }

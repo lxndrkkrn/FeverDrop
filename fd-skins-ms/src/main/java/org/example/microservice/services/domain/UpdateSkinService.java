@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,7 @@ public class UpdateSkinService {
     @Value("${market.api.key}")
     private String apiKey;
 
+    // Настройка REST клиента (C[Сервер] -> S[Aim.Market])
     @PostConstruct
     public void init() {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
@@ -44,6 +46,7 @@ public class UpdateSkinService {
                 .build();
     }
 
+    // Метод Get запроса на Aim.Market
     @Transactional(propagation = Propagation.MANDATORY)
     public MarketInventoryDto fetchSkinsFromMarket(String cursor) {
         return restClient.get()
@@ -66,6 +69,7 @@ public class UpdateSkinService {
                 .body(MarketInventoryDto.class);
     }
 
+    // Проверка ответа от Aim.Market
     @Transactional(propagation = Propagation.MANDATORY)
     public boolean isResponseEmpty(MarketInventoryDto dto) {
         if (dto == null || dto.items() == null || dto.items().isEmpty()) {
@@ -77,14 +81,22 @@ public class UpdateSkinService {
         }
     }
 
+    // Составление мапы действительных скинов
     @Transactional(propagation = Propagation.MANDATORY)
     public Map<String, Skin> getExistingSkinsMap() {
         return skinService.findAllSkins().stream()
                 .collect(Collectors.toMap(Skin::getSkinMarketId, skin -> skin));
     }
 
+    // Создание обновленного списка скинов:
+    // 1. Перебор списка предметов-дто
+    // 2. Пропуск только Трейдабельные
+    // 3. Если скин уже есть в базе -> | Обновление даты парсинга
+    //                                 | Обновление цены (если была изменена на маркете)
+    //    Если скин новый и в базе его нет -> | Создание нового экземпляра скина
+    // 4. Отправка списка обновленных скинов
     @Transactional(propagation = Propagation.MANDATORY)
-    public List<Skin> processUpdate(Set<MarketItemDto> items, Map<String, Skin> existingSkins) {
+    public List<Skin> processUpdate(List<MarketItemDto> items, Map<String, Skin> existingSkins) {
         List<Skin> modifedSkinList = new ArrayList<>();
 
         for (MarketItemDto item : items) {
@@ -93,14 +105,19 @@ public class UpdateSkinService {
 
                     Skin skin = existingSkins.get(item.skinMarketId());
 
+                    skin.setAtLastSeen(LocalDateTime.now());
+
                     if (!Objects.equals(skin.getMarketPrice(), item.marketPrice())) {
                         skin.updatePriceFromMarket(item.marketPrice());
-                        modifedSkinList.add(skin);
                     }
+
+                    modifedSkinList.add(skin);
 
                 } else {
                     Skin skin = createNewSkinTemplate(item);
+
                     existingSkins.put(item.skinMarketId(), skin);
+                    skin.setAtLastSeen(LocalDateTime.now());
 
                     modifedSkinList.add(skin);
                 }
@@ -110,6 +127,7 @@ public class UpdateSkinService {
         return modifedSkinList;
     }
 
+    // Создание экземпляра скина
     @Transactional(propagation = Propagation.MANDATORY)
     public Skin createNewSkinTemplate(MarketItemDto externalItem) {
         Skin newSkin = new Skin();

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 public record MarketInventoryDto(
-        Set<MarketItemDto> items,
+        List<MarketItemDto> items,
         String cursor
 ) {
 }

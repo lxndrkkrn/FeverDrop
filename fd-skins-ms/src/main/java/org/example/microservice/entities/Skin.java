@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.URL;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "skins")
@@ -67,6 +68,8 @@ public class Skin {
 
     @Version
     private Long version;
+
+    private LocalDateTime atLastSeen;
 
     public void updatePriceFromMarket(BigDecimal newPrice) {
         if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) <= 0) {
