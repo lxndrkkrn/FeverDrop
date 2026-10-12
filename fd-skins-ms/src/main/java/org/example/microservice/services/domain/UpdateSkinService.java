@@ -13,9 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,7 +51,10 @@ public class UpdateSkinService {
                     uriBuilder
                             .path("/inventories/get")
                             .queryParam("apiKey", apiKey)
-                            .queryParam("appId", 730);
+                            .queryParam("appId", 730)
+                            .queryParam("tradable", true)
+                            .queryParam("limit", 50)
+                            .queryParam("deliveryType", "INSTANT");
 
                     if (cursor != null && !cursor.isBlank()) {
                         uriBuilder.queryParam("cursor", cursor);
@@ -83,26 +84,30 @@ public class UpdateSkinService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public List<Skin> processUpdate(List<MarketItemDto> items, Map<String, Skin> existingSkins) {
-        List<Skin> newSkinList = new ArrayList<>();
+    public List<Skin> processUpdate(Set<MarketItemDto> items, Map<String, Skin> existingSkins) {
+        List<Skin> modifedSkinList = new ArrayList<>();
 
         for (MarketItemDto item : items) {
             if (item.tradable()) {
                 if (existingSkins.containsKey(item.skinMarketId())) {
 
                     Skin skin = existingSkins.get(item.skinMarketId());
-                    skin.updatePriceFromMarket(item.marketPrice());
+
+                    if (!Objects.equals(skin.getMarketPrice(), item.marketPrice())) {
+                        skin.updatePriceFromMarket(item.marketPrice());
+                        modifedSkinList.add(skin);
+                    }
 
                 } else {
                     Skin skin = createNewSkinTemplate(item);
                     existingSkins.put(item.skinMarketId(), skin);
 
-                    newSkinList.add(skin);
+                    modifedSkinList.add(skin);
                 }
             }
         }
 
-        return newSkinList;
+        return modifedSkinList;
     }
 
     @Transactional(propagation = Propagation.MANDATORY)

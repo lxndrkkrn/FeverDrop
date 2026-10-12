@@ -102,9 +102,11 @@ public class SkinService {
         skinRepository.save(skin);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
+    @Transactional
     public void saveAllSkins(List<Skin> list) {
-        skinRepository.saveAll(list);
+        if (!list.isEmpty()) {
+            skinRepository.saveAll(list);
+        }
     }
 
 }

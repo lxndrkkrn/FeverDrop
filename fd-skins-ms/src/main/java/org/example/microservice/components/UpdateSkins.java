@@ -23,9 +23,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.rmi.ServerError;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,8 +37,10 @@ public class UpdateSkins {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Scheduled(fixedDelay = 60000)
-    @Transactional
+    private static final int BATCH_SIZE = 1000;
+
+    @Scheduled(fixedDelay = 3600000)
+    //@Transactional
     public void parseAndUpdateSkins() {
         log.info("Начинаем парсинг скинов с API Aim.Market...");
 
@@ -53,43 +53,51 @@ public class UpdateSkins {
 
             Map<String, Skin> existingSkins = updateSkinService.getExistingSkinsMap();
 
+            List<Skin> changesBuff = new ArrayList<>();
+            //List<Skin> newSkinsBuffer = new ArrayList<>();
+
             while (hasMorePages) {
 
                 MarketInventoryDto marketInventory = updateSkinService.fetchSkinsFromMarket(cursor);
-                if (updateSkinService.isResponseEmpty(marketInventory)) break;
+                if (updateSkinService.isResponseEmpty(marketInventory)) {
+                    log.info("Получен пустой ответ от API. Завершаем чтение страниц.");
+                    break;
+                }
 
-                List<Skin> newSkinsList = updateSkinService.processUpdate(marketInventory.items(), existingSkins);
+                cursor = marketInventory.cursor();
 
-                if (!newSkinsList.isEmpty()) {
+                totalProcessed += marketInventory.items().size();
+                pages ++;
 
-                    totalProcessed += marketInventory.items().size();
-                    pages += 1;
+                changesBuff.addAll(updateSkinService.processUpdate(marketInventory.items(), existingSkins));
 
-                    skinService.saveAllSkins(List.copyOf(existingSkins.values()));
+                log.info("Страница {} обработана. Скинов в буфере: {}", pages, changesBuff.size());
+
+                if (changesBuff.size() >= BATCH_SIZE) {
+
+                    skinService.saveAllSkins(new ArrayList<>(changesBuff));
+                    changesBuff.clear();
+
                     log.info("Синхронизация полностью завершена! Всего обработано скинов со всех страниц: {}. В базе: {}",
                             totalProcessed, existingSkins.size());
+                }
 
-                    for (Skin skin : newSkinsList) {
-
-                        CreateSkinIdEventDto event = new CreateSkinIdEventDto(skin.getName(), skin.getSkinMarketId(), skin.getId());
-
-                        kafkaTemplate.send("create-skin-topic", String.valueOf(skin.getId()), event);
-                        log.info("Событие о создании скина отправленно, ждём подтверждения...");
-
-                    }
-
-                    cursor = marketInventory.cursor();
-                    if (cursor == null || cursor.isBlank()) {
-                        hasMorePages = false;
-                    } else {
-                        log.info("Страница №{} обработана. TotalProcessed: {}; Coursor: {}", pages, totalProcessed, cursor);
-                    }
+                if (cursor == null || cursor.isBlank()) {
+                    hasMorePages = false;
                 } else {
-                    skinService.saveAllSkins(List.copyOf(existingSkins.values()));
-                    log.info("Синхронизация полностью завершена! Всего обработано скинов со всех страниц: {}. В базе: {}. Новых скинов НЕ ДОБАВЛЕННО.",
-                            totalProcessed, existingSkins.size());
+                    log.info("Страница №{} обработана. TotalProcessed: {}; Coursor: {}", pages, totalProcessed, cursor);
                 }
             }
+
+            if (!changesBuff.isEmpty()) {
+
+                skinService.saveAllSkins(new ArrayList<>(changesBuff));
+                changesBuff.clear();
+
+            }
+
+            log.info("Синхронизация полностью завершена! Всего обработано скинов со всех страниц: {}. В базе: {}",
+                    totalProcessed, existingSkins.size());
 
         } catch (RestClientResponseException e) {
 
