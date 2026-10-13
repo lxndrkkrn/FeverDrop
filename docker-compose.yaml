@@ -109,5 +109,32 @@ services:
       - fd-kafka
       - fd-rabbitmq
 
+  fd-minigames-ms:
+    build:
+      context: .
+      dockerfile: ./fd-minigames-ms/Dockerfile
+    container_name: fd-minigames-ms
+    ports:
+      - "8083:8083"
+    environment:
+      SERVER_PORT: 8083
+
+      # Исправлено: имя хоста fd-postgres (соответствует названию сервиса выше) и база fd-db
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://fd-postgres:5432/fd-db"
+      SPRING_DATASOURCE_USERNAME: "admin"
+      SPRING_DATASOURCE_PASSWORD: "secret"
+
+      # Внутри Docker-сети микросервис общается с Kafka через внутренний порт 9093
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: "fd-kafka:9093"
+
+      SPRING_RABBITMQ_HOST: "fd-rabbitmq"
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: "admin"
+      SPRING_RABBITMQ_PASSWORD: "secret"
+    depends_on:
+      - fd-postgres
+      - fd-kafka
+      - fd-rabbitmq
+
 volumes:
   pgdata:

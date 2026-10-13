@@ -105,7 +105,7 @@ public class UpdateSkinService {
 
                     Skin skin = existingSkins.get(item.skinMarketId());
 
-                    skin.setAtLastSeen(LocalDateTime.now());
+                    skin.setLastSeenAt(LocalDateTime.now());
 
                     if (!Objects.equals(skin.getMarketPrice(), item.marketPrice())) {
                         skin.updatePriceFromMarket(item.marketPrice());
@@ -117,7 +117,7 @@ public class UpdateSkinService {
                     Skin skin = createNewSkinTemplate(item);
 
                     existingSkins.put(item.skinMarketId(), skin);
-                    skin.setAtLastSeen(LocalDateTime.now());
+                    skin.setLastSeenAt(LocalDateTime.now());
 
                     modifedSkinList.add(skin);
                 }

@@ -1,6 +1,7 @@
 package org.example.microservice.components;
 
-import dto.CreateSkinIdEventDto;
+import dto.SkinPriceUpdateDto;
+import dto.SkinsPricesUpdateEventDto;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
@@ -58,6 +59,7 @@ public class UpdateSkins {
             Map<String, Skin> existingSkins = updateSkinService.getExistingSkinsMap();
 
             List<Skin> changesBuff = new ArrayList<>();
+            List<SkinPriceUpdateDto> kafkaSkinsList = new ArrayList<>();
 
             // Цикл парса маркета (Пока есть что парсить)
             while (hasMorePages) {
@@ -75,8 +77,13 @@ public class UpdateSkins {
                 totalProcessed += marketInventory.items().size();
                 pages ++;
 
-                // Добавление обновленных скинов в общую кучу
-                changesBuff.addAll(updateSkinService.processUpdate(marketInventory.items(), existingSkins));
+                // Добавление обновленных скинов в список Изменённых скинов
+                List<Skin> updateSkins = updateSkinService.processUpdate(marketInventory.items(), existingSkins);
+                changesBuff.addAll(updateSkins);
+
+                for (Skin skin : updateSkins) {
+                    kafkaSkinsList.add(new SkinPriceUpdateDto(skin.getId(), skin.getSkinMarketId(), skin.getMarketPrice()));
+                }
 
                 log.info("Страница {} обработана. Скинов в буфере: {}", pages, changesBuff.size());
 
@@ -85,6 +92,20 @@ public class UpdateSkins {
 
                     skinService.saveAllSkins(new ArrayList<>(changesBuff));
                     changesBuff.clear();
+
+                    if (!kafkaSkinsList.isEmpty()) {
+                        SkinsPricesUpdateEventDto event = new SkinsPricesUpdateEventDto(
+                                kafkaSkinsList,
+                                System.currentTimeMillis()
+                        );
+
+                        kafkaTemplate.send("skins-change-prices-topic", "batch", event);
+                        kafkaSkinsList.clear();
+
+                        log.info("Пакет обновлений цен отправлен в Kafka.");
+                    }
+
+                    kafkaSkinsList.clear();
 
                     log.info("Синхронизация полностью завершена! Всего обработано скинов со всех страниц: {}. В базе: {}",
                             totalProcessed, existingSkins.size());
@@ -102,6 +123,16 @@ public class UpdateSkins {
             if (!changesBuff.isEmpty()) {
                 skinService.saveAllSkins(new ArrayList<>(changesBuff));
                 changesBuff.clear();
+            }
+
+            if (!kafkaSkinsList.isEmpty()) {
+                SkinsPricesUpdateEventDto event = new SkinsPricesUpdateEventDto(
+                        kafkaSkinsList,
+                        System.currentTimeMillis()
+                );
+
+                kafkaTemplate.send("skins-change-prices-topic", "batch", event);
+                kafkaSkinsList.clear();
             }
 
             // Отчёт о парсе

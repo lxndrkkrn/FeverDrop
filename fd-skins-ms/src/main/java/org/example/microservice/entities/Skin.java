@@ -69,7 +69,7 @@ public class Skin {
     @Version
     private Long version;
 
-    private LocalDateTime atLastSeen;
+    private LocalDateTime lastSeenAt;
 
     public void updatePriceFromMarket(BigDecimal newPrice) {
         if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) <= 0) {
