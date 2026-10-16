@@ -33,6 +33,11 @@ public class SkinInstService {
         return skinInstRepository.findAllByInventoryIdAndSkinMarketId(inventory.getId(), skinMarketId);
     }
 
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+    public List<SkinInst> findAllByFullName(String fullName) {
+        return skinInstRepository.findAllByFullName(fullName);
+    }
+
     @Transactional(propagation = Propagation.MANDATORY)
     public SkinInst createSkinInst(String fullName, Inventory inventory, BigDecimal marketPrice, String imageUrl, String rarity) {
         log.info("Создание и Привязка нового SkinInst ({}) к инвентарю {}", fullName, inventory.getId());

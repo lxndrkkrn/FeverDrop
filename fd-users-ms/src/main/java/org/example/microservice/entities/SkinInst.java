@@ -28,6 +28,8 @@ public class SkinInst {
     @NotNull
     private String fullName;
 
+    private String skinMarketId;
+
     @Positive
     private BigDecimal marketPrice;
 

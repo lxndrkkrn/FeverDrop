@@ -10,4 +10,6 @@ public interface SkinInstRepository extends JpaRepository<SkinInst, Long> {
 
     List<SkinInst> findAllByInventoryIdAndSkinMarketId(Long id, String skinMarketId);
 
+    List<SkinInst> findAllByFullName(String fullName);
+
 }

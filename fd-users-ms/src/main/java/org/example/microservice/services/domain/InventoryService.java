@@ -1,6 +1,7 @@
 package org.example.microservice.services.domain;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.domain.client.NotFound;
 import org.example.microservice.entities.Inventory;
 import org.example.microservice.entities.User;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 
 public class InventoryService {
 
@@ -36,20 +38,22 @@ public class InventoryService {
         return inventory;
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
-    public void addSkinsByMarketIds(Collection<String> marketIds, Long inventoryId) {
-        Inventory inventory = inventoryRepository.findById(inventoryId)
-                .orElseThrow(() -> new NotFound("Инвентарь не найден"));
-
-        inventory.getSkinMarketIds().addAll(marketIds);
-    }
-
-    @Transactional(propagation = Propagation.MANDATORY)
-    public void takeSkinsByMarketIds(Collection<String> marketIds, Long inventoryId) {
-        Inventory inventory = inventoryRepository.findById(inventoryId)
-                .orElseThrow(() -> new NotFound("Инвентарь не найден"));
-
-        inventory.getSkinMarketIds().removeAll(marketIds);
-    }
+//    @Transactional(propagation = Propagation.MANDATORY)
+//    public void addSkinsToInventory(Inventory inventory, List<String> marketIds) {
+//        log.info("Добавление пачки скинов в инвентарь {}", inventory.getId());
+//
+//        for (String marketId : marketIds) {
+//            skinInstService.createSkinInst(marketId, inventory);
+//        }
+//    }
+//
+//    @Transactional(propagation = Propagation.MANDATORY)
+//    public void removeSkinsFromInventory(Inventory inventory, List<Long> skinInstIds) {
+//        log.info("Удаление пачки скинов из инвентаря {}", inventory.getId());
+//
+//        for (Long id : skinInstIds) {
+//            skinInstService.deleteSkinInst(id);
+//        }
+//    }
 
 }
