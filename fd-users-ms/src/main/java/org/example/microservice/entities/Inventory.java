@@ -11,7 +11,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "inventories")
-@ToString
+@ToString(exclude = "skinInstList")
 @Getter
 @Setter
 @Slf4j
@@ -32,15 +32,24 @@ public class Inventory {
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false, unique = true)
     private User user;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "inventory_skins",
-            joinColumns = @JoinColumn(name = "inventory_id")
-    )
-    @Column(name = "skin_market_id", unique = true)
-    private Set<String> skinMarketIds = new HashSet<>();
+    @OneToMany(mappedBy = "inventory", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SkinInst> skinInstList = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() { if (this.uuid == null) this.uuid = UUID.randomUUID(); }
+
+    public List<SkinInst> addSkinInstToInventory(SkinInst skin) {
+        this.skinInstList.add(skin);
+        skin.setInventory(this);
+
+        return this.skinInstList;
+    }
+
+    public List<SkinInst> takeSkinInstFromInventory(SkinInst skin) {
+        this.skinInstList.remove(skin);
+        skin.setInventory(null);
+
+        return this.skinInstList;
+    }
 
 }

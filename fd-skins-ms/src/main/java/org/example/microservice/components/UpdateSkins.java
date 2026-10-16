@@ -82,7 +82,7 @@ public class UpdateSkins {
                 changesBuff.addAll(updateSkins);
 
                 for (Skin skin : updateSkins) {
-                    kafkaSkinsList.add(new SkinPriceUpdateDto(skin.getId(), skin.getSkinMarketId(), skin.getMarketPrice()));
+                    kafkaSkinsList.add(new SkinPriceUpdateDto(skin.getId(), skin.getName(), skin.getSkinMarketId(), skin.getMarketPrice()));
                 }
 
                 log.info("Страница {} обработана. Скинов в буфере: {}", pages, changesBuff.size());

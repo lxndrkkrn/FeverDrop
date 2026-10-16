@@ -47,7 +47,6 @@ public class UpdateSkinService {
     }
 
     // Метод Get запроса на Aim.Market
-    @Transactional(propagation = Propagation.MANDATORY)
     public MarketInventoryDto fetchSkinsFromMarket(String cursor) {
         return restClient.get()
                 .uri(uriBuilder -> {
@@ -101,26 +100,27 @@ public class UpdateSkinService {
 
         for (MarketItemDto item : items) {
             if (item.tradable()) {
+
+                Skin skin;
+
                 if (existingSkins.containsKey(item.skinMarketId())) {
 
-                    Skin skin = existingSkins.get(item.skinMarketId());
+                    skin = existingSkins.get(item.skinMarketId());
 
                     skin.setLastSeenAt(LocalDateTime.now());
 
-                    if (!Objects.equals(skin.getMarketPrice(), item.marketPrice())) {
+                    if (skin.getMarketPrice().compareTo(item.marketPrice()) == 0) {
                         skin.updatePriceFromMarket(item.marketPrice());
                     }
 
-                    modifedSkinList.add(skin);
-
                 } else {
-                    Skin skin = createNewSkinTemplate(item);
+                    skin = createNewSkinTemplate(item);
 
                     existingSkins.put(item.skinMarketId(), skin);
                     skin.setLastSeenAt(LocalDateTime.now());
 
-                    modifedSkinList.add(skin);
                 }
+                modifedSkinList.add(skin);
             }
         }
 
