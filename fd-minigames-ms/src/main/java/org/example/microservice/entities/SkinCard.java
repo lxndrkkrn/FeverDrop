@@ -29,7 +29,8 @@ public class SkinCard {
     private String fullName;
 
     @Positive
-    private BigDecimal marketPrice;
+    @NotNull
+    private BigDecimal marketPrice = BigDecimal.ZERO;
 
     @URL
     private String imageUrl;

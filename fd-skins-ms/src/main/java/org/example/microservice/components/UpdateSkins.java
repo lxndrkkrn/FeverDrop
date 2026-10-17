@@ -71,6 +71,23 @@ public class UpdateSkins {
                     break;
                 }
 
+                // Все новые скины добавляются в список для отправки в кафку
+                for (MarketItemDto item : marketInventory.items()) {
+                    if (item.tradable()) {
+
+                        Skin skin = existingSkins.get(item.skinMarketId());
+
+                        if (skin != null) {
+                            kafkaSkinsList.add(new SkinPriceUpdateDto(
+                                    skin.getId(),
+                                    skin.getName(),
+                                    skin.getSkinMarketId(),
+                                    skin.getMarketPrice()
+                            ));
+                        }
+                    }
+                }
+
                 // Страница со скинами + обновление статистики
                 cursor = marketInventory.cursor();
 
@@ -80,10 +97,6 @@ public class UpdateSkins {
                 // Добавление обновленных скинов в список Изменённых скинов
                 List<Skin> updateSkins = updateSkinService.processUpdate(marketInventory.items(), existingSkins);
                 changesBuff.addAll(updateSkins);
-
-                for (Skin skin : updateSkins) {
-                    kafkaSkinsList.add(new SkinPriceUpdateDto(skin.getId(), skin.getName(), skin.getSkinMarketId(), skin.getMarketPrice()));
-                }
 
                 log.info("Страница {} обработана. Скинов в буфере: {}", pages, changesBuff.size());
 

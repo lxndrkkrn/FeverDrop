@@ -51,4 +51,19 @@ public class CaseGame {
     @Version
     private Long version;
 
+    public void addSkin(SkinCard skin) {
+        if (this.skins == null) {
+            this.skins = new ArrayList<>();
+        }
+        if (!this.skins.contains(skin)) {
+            this.skins.add(skin);
+        }
+    }
+
+    public void removeSkin(SkinCard skin) {
+        if (this.skins != null) {
+            this.skins.remove(skin);
+        }
+    }
+
 }
