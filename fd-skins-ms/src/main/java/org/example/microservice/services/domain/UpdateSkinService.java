@@ -109,7 +109,7 @@ public class UpdateSkinService {
 
                     skin.setLastSeenAt(LocalDateTime.now());
 
-                    if (skin.getMarketPrice().compareTo(item.marketPrice()) == 0) {
+                    if (skin.getMarketPrice().compareTo(item.marketPrice()) != 0) {
                         skin.updatePriceFromMarket(item.marketPrice());
                     }
 
