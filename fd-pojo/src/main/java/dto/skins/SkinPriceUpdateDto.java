@@ -1,4 +1,4 @@
-package dto;
+package dto.skins;
 
 import java.math.BigDecimal;
 

@@ -1,32 +1,22 @@
 package org.example.microservice.components;
 
-import dto.SkinPriceUpdateDto;
-import dto.SkinsPricesUpdateEventDto;
-import jakarta.annotation.PostConstruct;
+import dto.skins.SkinPriceUpdateDto;
+import dto.skins.SkinsPricesUpdateEventDto;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.microservice.dtos.MarketInventoryDto;
 import org.example.microservice.dtos.MarketItemDto;
-import org.example.microservice.dtos.request.skin.CreateSkinRequestDto;
 import org.example.microservice.entities.Skin;
-import org.example.microservice.services.application.SkinAppService;
 import org.example.microservice.services.domain.SkinService;
 import org.example.microservice.services.domain.UpdateSkinService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.rmi.ServerError;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

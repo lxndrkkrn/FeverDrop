@@ -1,7 +1,7 @@
-package org.example.microservice.components;
+package org.example.microservice.components.skins;
 
-import dto.SkinPriceUpdateDto;
-import dto.SkinsPricesUpdateEventDto;
+import dto.skins.SkinPriceUpdateDto;
+import dto.skins.SkinsPricesUpdateEventDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.microservice.entities.SkinCard;

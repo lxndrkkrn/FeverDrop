@@ -1,6 +1,6 @@
 package org.example.module.components;
 
-import dto.WalletBalanceUpdateDto;
+import dto.systemwallet.WalletBalanceUpdateDto;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
