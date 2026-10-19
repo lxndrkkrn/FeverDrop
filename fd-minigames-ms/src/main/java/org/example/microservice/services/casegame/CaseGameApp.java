@@ -78,6 +78,7 @@ public class CaseGameApp {
 
 //        kafkaTemplate.send("send-won-skin-response-topic", String.valueOf(userId), event);
 //        log.info("Скин отправлен в брокер");
+//        ПОЗЖЕ
     }
 
 }
