@@ -1,6 +1,6 @@
 package org.example.microservice.repositories;
 
-import org.example.microservice.entities.CaseGame;
+import org.example.microservice.entities.games.CaseGame;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.math.BigDecimal;

@@ -3,7 +3,7 @@ package org.example.microservice.services.casegame;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.domain.client.NotFound;
-import org.example.microservice.entities.CaseGame;
+import org.example.microservice.entities.games.CaseGame;
 import org.example.microservice.entities.SkinCard;
 import org.example.microservice.repositories.CaseGameRepository;
 import org.springframework.stereotype.Service;
@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

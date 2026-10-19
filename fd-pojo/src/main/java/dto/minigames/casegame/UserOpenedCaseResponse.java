@@ -1,4 +1,4 @@
-package dto.minigames;
+package dto.minigames.casegame;
 
 import java.math.BigDecimal;
 

@@ -1,4 +1,4 @@
-package org.example.microservice.entities;
+package org.example.microservice.entities.games;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.example.microservice.entities.SkinCard;
 import org.hibernate.validator.constraints.URL;
 
 import java.math.BigDecimal;
