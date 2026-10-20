@@ -41,7 +41,7 @@ public class ParsingCaseEventService {
                         SendWonSkinToKafkaDto.class
                 );
 
-                kafkaTemplate.send("send-won-skin-response-topic", String.valueOf(event.userId()), event).get();
+                kafkaTemplate.send("won-skin-response-topic", String.valueOf(event.userId()), event).get();
                 log.info("Скин успешно отправлен в брокер для userId: {}", event.userId());
 
                 outboxMiniGameRepository.delete(outbox);

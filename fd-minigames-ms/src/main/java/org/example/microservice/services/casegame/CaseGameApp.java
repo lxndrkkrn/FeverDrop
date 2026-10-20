@@ -59,6 +59,9 @@ public class CaseGameApp {
 
         SendWonSkinToKafkaDto event = new SendWonSkinToKafkaDto(
                 wonSkin.getFullName(),
+                wonSkin.getMarketPrice(),
+                wonSkin.getRarity(),
+                wonSkin.getImageUrl(),
                 userId
         );
 

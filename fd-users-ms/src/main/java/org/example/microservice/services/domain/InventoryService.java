@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.domain.client.NotFound;
 import org.example.microservice.entities.Inventory;
+import org.example.microservice.entities.SkinInst;
 import org.example.microservice.entities.User;
 import org.example.microservice.repositories.InventoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.example.exceptions.domain.client.Forbidden;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -20,6 +23,7 @@ import java.util.List;
 public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
+    private final SkinInstService skinInstService;
 
     @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public Inventory findInventoryById(Long id) {
@@ -38,22 +42,27 @@ public class InventoryService {
         return inventory;
     }
 
-//    @Transactional(propagation = Propagation.MANDATORY)
-//    public void addSkinsToInventory(Inventory inventory, List<String> marketIds) {
-//        log.info("Добавление пачки скинов в инвентарь {}", inventory.getId());
-//
-//        for (String marketId : marketIds) {
-//            skinInstService.createSkinInst(marketId, inventory);
-//        }
-//    }
-//
-//    @Transactional(propagation = Propagation.MANDATORY)
-//    public void removeSkinsFromInventory(Inventory inventory, List<Long> skinInstIds) {
-//        log.info("Удаление пачки скинов из инвентаря {}", inventory.getId());
-//
-//        for (Long id : skinInstIds) {
-//            skinInstService.deleteSkinInst(id);
-//        }
-//    }
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void addSkinToInventory(Inventory inventory, String fullName, String rarity, String imageUrl, BigDecimal marketPrice) {
 
+        SkinInst skinInst = new SkinInst();
+
+        skinInst.setFullName(fullName);
+        skinInst.setRarity(rarity);
+        skinInst.setImageUrl(imageUrl);
+        skinInst.setMarketPrice(marketPrice);
+
+        inventory.addSkinInstToInventory(skinInst);
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void takeSkinFromInventory(Inventory inventory, Long id) {
+        SkinInst skinInst = skinInstService.findById(id);
+
+        if (!skinInst.getInventory().getUser().getId().equals(inventory.getUser().getId())) {
+            throw new Forbidden("Вы не можете использовать чужой скин!");
+        }
+
+        inventory.takeSkinInstFromInventory(skinInst);
+    }
 }
