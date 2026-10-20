@@ -7,6 +7,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "outboxes_minigames")
 @ToString
@@ -14,19 +16,25 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Slf4j
 
-public class Outbox {
+public class OutboxMiniGame {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
+    private Long userId;
+
+    @NotNull
     private String aggregateType;
 
     @NotNull
-    private String EventType;
+    private String eventType;
 
     @NotNull
-    private Object payload;
+    private String payload;
+
+    @NotNull
+    private LocalDateTime createdAt = LocalDateTime.now();
 
 }

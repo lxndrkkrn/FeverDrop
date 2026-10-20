@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.exceptions.domain.server.ServiceUnavailable;
 import org.example.microservice.entities.SkinCard;
 import org.example.microservice.entities.games.CaseGame;
-import org.example.microservice.entities.outboxes.Outbox;
-import org.example.microservice.repositories.outboxes.OutboxRepository;
+import org.example.microservice.entities.outboxes.OutboxMiniGame;
+import org.example.microservice.repositories.outboxes.OutboxMiniGameRepository;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -25,7 +25,7 @@ public class CaseGameApp {
     private final CaseGameHandle caseGameHandle;
     private final CaseGameService caseGameService;
 
-    private final OutboxRepository outboxRepository;
+    private final OutboxMiniGameRepository outboxMiniGameRepository;
 
     private final ObjectMapper objectMapper;
 
@@ -63,22 +63,18 @@ public class CaseGameApp {
         );
 
         try {
-            Outbox outbox = new Outbox();
+            OutboxMiniGame outbox = new OutboxMiniGame();
 
             outbox.setAggregateType("CASE_GAME");
             outbox.setEventType("USER_WON_SKIN");
             outbox.setPayload(objectMapper.writeValueAsString(event));
 
-            outboxRepository.save(outbox);
+            outboxMiniGameRepository.save(outbox);
             log.info("Событие выигрыша зафиксировано в таблице Outbox");
 
         } catch (Exception e) {
             throw new RuntimeException("Критическая ошибка записи события выигрыша в Outbox", e);
         }
-
-//        kafkaTemplate.send("send-won-skin-response-topic", String.valueOf(userId), event);
-//        log.info("Скин отправлен в брокер");
-//        ПОЗЖЕ
     }
 
 }
