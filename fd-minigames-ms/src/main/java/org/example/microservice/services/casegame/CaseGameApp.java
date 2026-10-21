@@ -29,8 +29,6 @@ public class CaseGameApp {
 
     private final ObjectMapper objectMapper;
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
-
     @Transactional
     public void openCaseHandle(Long userId, Long caseId, BigDecimal userBalance) {
         log.info("Игрок {} открывает кейс {}", userId, caseId);
@@ -45,7 +43,7 @@ public class CaseGameApp {
 
             SkinCard wonSkin = caseGameHandle.getWonSkin(case_.getId());
 
-            sendWonSkinToKafka(wonSkin, userId);
+            saveEventToOutbox(wonSkin, userId);
 
         } catch (Exception e) {
             log.error("Ошибка при открытии кейса, UserId: {}, CaseId: {}", userId, caseId, e);
@@ -54,7 +52,7 @@ public class CaseGameApp {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    public void sendWonSkinToKafka(SkinCard wonSkin, Long userId) {
+    public void saveEventToOutbox(SkinCard wonSkin, Long userId) {
         log.info("Отправка выиграного из кейса скина в кафку (FullName: {}, UserId:{})", wonSkin.getFullName(), userId);
 
         SendWonSkinToKafkaDto event = new SendWonSkinToKafkaDto(
@@ -69,7 +67,7 @@ public class CaseGameApp {
             OutboxMiniGame outbox = new OutboxMiniGame();
 
             outbox.setAggregateType("CASE_GAME");
-            outbox.setEventType("USER_WON_SKIN");
+            outbox.setEventType("USER_WON_SKIN_CASE");
             outbox.setPayload(objectMapper.writeValueAsString(event));
 
             outboxMiniGameRepository.save(outbox);

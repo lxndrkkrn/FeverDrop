@@ -25,8 +25,6 @@ public class CaseGameHandle {
 
     private final SystemWalletCache systemWalletCache;
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
-
     private final SecureRandom secureRandom = new SecureRandom();
 
 //    private void rollbackUpdate() {

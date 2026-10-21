@@ -20,7 +20,7 @@ public class CaseGameListener {
     private final UserService userService;
     private final InventoryService inventoryService;
 
-    @KafkaListener(topics = "won-skin-response-topic", groupId = "users-microservice")
+    @KafkaListener(topics = "won-skin-case-response-topic", groupId = "users-microservice")
     @Transactional
     public void getWonSkinHandle(SendWonSkinToKafkaDto event) {
         try {

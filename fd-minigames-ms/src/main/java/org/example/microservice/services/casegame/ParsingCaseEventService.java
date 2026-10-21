@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,8 +28,8 @@ public class ParsingCaseEventService {
 
     @Scheduled(fixedDelay = 3000)
     @Transactional
-    public void parseOutboxHandle() {
-        List<OutboxMiniGame> processedObjects = outboxMiniGameRepository.findAllForProcessing();
+    public void parseCaseOutboxHandle() {
+        List<OutboxMiniGame> processedObjects = outboxMiniGameRepository.findAllForProcessing("CASE_GAME", List.of("USER_WON_SKIN_CASE"));
 
         if (processedObjects == null || processedObjects.isEmpty()) {
             return;
@@ -41,8 +42,8 @@ public class ParsingCaseEventService {
                         SendWonSkinToKafkaDto.class
                 );
 
-                kafkaTemplate.send("won-skin-response-topic", String.valueOf(event.userId()), event).get();
-                log.info("Скин успешно отправлен в брокер для userId: {}", event.userId());
+                kafkaTemplate.send("won-skin-case-response-topic", String.valueOf(event.userId()), event).get();
+                log.info("Скин успешно отправлен в брокер для UserId: {}", event.userId());
 
                 outboxMiniGameRepository.delete(outbox);
 
@@ -51,5 +52,4 @@ public class ParsingCaseEventService {
             }
         }
     }
-
 }
