@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -25,7 +26,7 @@ public class UpgradeGameHandle {
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
-    public UpgradeResponseDto getWonSkinOrNull(SkinCard userSkin, SkinCard marketSkin) {
+    public UpgradeResponseDto getWonSkinOrNull(List<SkinCard> userSkin, SkinCard marketSkin) {
         BigDecimal totalBalance = systemWalletCache.getTotalBalance();
         BigDecimal prizePool = systemWalletCache.getPrizePool();
 
@@ -33,7 +34,13 @@ public class UpgradeGameHandle {
             throw new org.example.exceptions.domain.server.ServiceUnavailable("Сервис временно недоступен: Баланс проекта не синхронизирован");
         }
 
-        BigDecimal userSkinPrice = userSkin.getMarketPrice();
+        BigDecimal userSkinPrice = BigDecimal.ZERO;
+        for (SkinCard card : userSkin) {
+            if (card.getMarketPrice() != null) {
+                userSkinPrice = userSkinPrice.add(card.getMarketPrice());
+            }
+        }
+
         BigDecimal marketSkinPrice = marketSkin.getMarketPrice();
 
         if (userSkinPrice.signum() <= 0 || marketSkinPrice.signum() <= 0) {

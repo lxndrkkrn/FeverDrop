@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -29,11 +31,19 @@ public class UpgradeGameApp {
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public void upgradeSkin(Long userId, Long userSkinId, Long marketSkinId, Long sessionId) {
+    public void upgradeSkin(Long userId, List<Long> userSkinId, Long marketSkinId, Long sessionId) {
         log.info("Игрок {} апгрейдит свой скин {} до {}", userId, userSkinId, marketSkinId);
 
-        SkinCard userSkin = skinCardRepository.findById(userSkinId)
-                .orElseThrow(() -> new NotFound("Скин не найден"));
+        List<SkinCard> userSkin = skinCardRepository.findAllById(userSkinId);
+
+        if (userSkin.size() != userSkinId.size()) {
+            throw new org.example.exceptions.domain.client.BadRequest("Один или несколько указанных скинов не найдены в базе данных");
+        }
+
+        if (userSkinId.size() > 5) {
+            log.warn("Игрок {} попытался поставить на апгрейд {} скинов (максимум 5)", userId, userSkinId.size());
+            throw new org.example.exceptions.domain.client.BadRequest("Максимально можно апгрейдить до 5 скинов за один раз");
+        }
 
         SkinCard marketSkin = skinCardRepository.findById(marketSkinId)
                 .orElseThrow(() -> new NotFound("Скин не найден"));
