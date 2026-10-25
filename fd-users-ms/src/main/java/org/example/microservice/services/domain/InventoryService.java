@@ -63,6 +63,10 @@ public class InventoryService {
             throw new Forbidden("Вы не можете использовать чужой скин!");
         }
 
+        if (skinInst.isFrozen()) {
+            throw new Forbidden("Скин заморожен в другой игровой сессии (например, в Апгрейде)!");
+        }
+
         inventory.takeSkinInstFromInventory(skinInst);
     }
 }

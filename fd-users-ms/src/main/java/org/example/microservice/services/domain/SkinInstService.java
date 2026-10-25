@@ -12,7 +12,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -26,6 +29,11 @@ public class SkinInstService {
     public SkinInst findById(Long id) {
         return skinInstRepository.findById(id)
                 .orElseThrow(() -> new NotFound("Скин по id не найден"));
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+    public Set<SkinInst> findAllById(List<Long> ids) {
+        return new HashSet<>(skinInstRepository.findAllById(ids));
     }
 
     @Transactional(propagation = Propagation.MANDATORY, readOnly = true)

@@ -22,7 +22,7 @@ public class CaseGameListener {
 
     @KafkaListener(topics = "won-skin-case-response-topic", groupId = "users-microservice")
     @Transactional
-    public void getWonSkinHandle(SendWonSkinToKafkaDto event) {
+    public void getWonSkinFromCaseHandle(SendWonSkinToKafkaDto event) {
         try {
             User user = userService.findUserById(event.userId());
             Inventory inventory = user.getInventory();
@@ -34,7 +34,4 @@ public class CaseGameListener {
             throw e;
         }
     }
-
-    // SALE METHOD
-
 }

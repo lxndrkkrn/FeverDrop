@@ -26,7 +26,7 @@ public class UpgradeGameHandle {
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
-    public UpgradeResponseDto getWonSkinOrNull(List<SkinCard> userSkin, SkinCard marketSkin) {
+    public UpgradeResponseDto getWonSkinOrNull(BigDecimal allPrice, SkinCard marketSkin) {
         BigDecimal totalBalance = systemWalletCache.getTotalBalance();
         BigDecimal prizePool = systemWalletCache.getPrizePool();
 
@@ -34,20 +34,13 @@ public class UpgradeGameHandle {
             throw new org.example.exceptions.domain.server.ServiceUnavailable("Сервис временно недоступен: Баланс проекта не синхронизирован");
         }
 
-        BigDecimal userSkinPrice = BigDecimal.ZERO;
-        for (SkinCard card : userSkin) {
-            if (card.getMarketPrice() != null) {
-                userSkinPrice = userSkinPrice.add(card.getMarketPrice());
-            }
-        }
-
         BigDecimal marketSkinPrice = marketSkin.getMarketPrice();
 
-        if (userSkinPrice.signum() <= 0 || marketSkinPrice.signum() <= 0) {
+        if (allPrice.signum() <= 0 || marketSkinPrice.signum() <= 0) {
             throw new BadRequest("Цена скинов должна быть строго больше нуля");
         }
 
-        BigDecimal chance = userSkinPrice.divide(marketSkinPrice, 4, RoundingMode.DOWN);
+        BigDecimal chance = allPrice.divide(marketSkinPrice, 4, RoundingMode.DOWN);
 
         if (chance.compareTo(new BigDecimal("0.75")) > 0 || chance.compareTo(new BigDecimal("0.0001")) < 0) {
             throw new BadRequest("Шанс на апгрейд должен быть строго от 0.01% до 75%");

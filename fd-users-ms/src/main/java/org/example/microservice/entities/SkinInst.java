@@ -45,6 +45,9 @@ public class SkinInst {
     @JoinColumn(name = "inventory_id", nullable = false)
     private Inventory inventory;
 
+    @Column(name = "is_frozen")
+    private boolean isFrozen = false;
+
     @Version
     private Long version;
 

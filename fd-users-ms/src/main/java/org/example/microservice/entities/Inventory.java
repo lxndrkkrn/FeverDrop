@@ -52,4 +52,8 @@ public class Inventory {
         return this.skinInstList;
     }
 
+    public boolean containsAllSkinsInst(Set<SkinInst> list) {
+        return new HashSet<>(this.skinInstList).containsAll(list);
+    }
+
 }
